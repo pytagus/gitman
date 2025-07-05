@@ -1,9 +1,7 @@
 # gitman
 GitMan Assistant Git en Ligne de Commande (CLI)
 
-[![Go Version](https://img.shields.io/badge/Go-1.19+-blue.svg)](https://golang.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg)](https://github.com/your-username/gitman)
+![GitMan CLI Interface](gitman.png)
 
 **GitMan** est un gestionnaire Git CLI moderne et intelligent qui simplifie et améliore votre workflow Git quotidien. Avec son interface colorée, ses raccourcis intelligents et ses suggestions contextuelles, GitMan transforme Git en un outil plus accessible et efficace.
 
@@ -316,12 +314,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ---
 
-## 📞 Support et contact
-
-- 🐛 **Issues** : [GitHub Issues](https://github.com/your-username/gitman/issues)
-- 💬 **Discussions** : [GitHub Discussions](https://github.com/your-username/gitman/discussions)
-- 📧 **Email** : your-email@example.com
-
----
-
 **GitMan** - Rendez Git simple, intelligent et agréable à utiliser ! 🚀
+
+[![Go Version](https://img.shields.io/badge/Go-1.19+-blue.svg)](https://golang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
