@@ -1,5 +1,5 @@
 # gitman
-GitMan Assistant Git en Ligne de Commande (CLI)
+Gitman est un Git Manager CLI écrit en Go : Interface TUI intuitive avec stats temps réel, suggestions contextuelles et raccourcis rapides
 
 ![GitMan CLI Interface](gitman.png)
 
