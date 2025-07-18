@@ -250,120 +250,120 @@ func (gm *GitManager) showBasicRepoInfo() {
 
 // Analyse intelligente de l'état des fichiers
 func (gm *GitManager) showIntelligentFileStatus() {
- status := gm.getGitStatus()
- staged, _ := gm.runGitCommand("diff", "--cached", "--name-only")
+	status := gm.getGitStatus()
+	staged, _ := gm.runGitCommand("diff", "--cached", "--name-only")
 
- fmt.Printf("%s%s📁 ÉTAT DES FICHIERS%s\n", ColorBold, ColorGreen, ColorReset)
+	fmt.Printf("%s%s📁 ÉTAT DES FICHIERS%s\n", ColorBold, ColorGreen, ColorReset)
 
- if status == "" && staged == "" {
-  fmt.Printf("%s✨ Working directory clean - Aucun changement détecté%s\n", ColorGreen, ColorReset)
-  fmt.Println()
-  return
- }
+	if status == "" && staged == "" {
+		fmt.Printf("%s✨ Working directory clean - Aucun changement détecté%s\n", ColorGreen, ColorReset)
+		fmt.Println()
+		return
+	}
 
- // Analyser et catégoriser les changements
- var modified, added, deleted, renamed, untracked, stagedFiles []string
+	// Analyser et catégoriser les changements
+	var modified, added, deleted, renamed, untracked, stagedFiles []string
 
- if status != "" {
-  lines := strings.Split(strings.TrimSpace(status), "\n")
-  for _, line := range lines {
-   if len(line) < 3 {
-    continue
-   }
-   statusCode := line[:2]
-   fileName := line[3:]
+	if status != "" {
+		lines := strings.Split(strings.TrimSpace(status), "\n")
+		for _, line := range lines {
+			if len(line) < 3 {
+				continue
+			}
+			statusCode := line[:2]
+			fileName := line[3:]
 
-   switch statusCode {
-   case "M ", "AM":
-    stagedFiles = append(stagedFiles, fileName+" (modifié)")
-   case " M", "MM":
-    modified = append(modified, fileName)
-   case "A ":
-    stagedFiles = append(stagedFiles, fileName+" (nouveau)")
-    added = append(added, fileName) // Utiliser la variable 'added'
-   case "D ":
-    stagedFiles = append(stagedFiles, fileName+" (supprimé)")
-   case " D":
-    deleted = append(deleted, fileName)
-   case "R ":
-    renamed = append(renamed, fileName)
-   case "??":
-    untracked = append(untracked, fileName)
-   }
-  }
- }
+			switch statusCode {
+			case "M ", "AM":
+				stagedFiles = append(stagedFiles, fileName+" (modifié)")
+			case " M", "MM":
+				modified = append(modified, fileName)
+			case "A ":
+				stagedFiles = append(stagedFiles, fileName+" (nouveau)")
+				added = append(added, fileName) // Utiliser la variable 'added'
+			case "D ":
+				stagedFiles = append(stagedFiles, fileName+" (supprimé)")
+			case " D":
+				deleted = append(deleted, fileName)
+			case "R ":
+				renamed = append(renamed, fileName)
+			case "??":
+				untracked = append(untracked, fileName)
+			}
+		}
+	}
 
- // Affichage organisé avec couleurs et statistiques
- if len(stagedFiles) > 0 {
-  fmt.Printf("%s✅ FICHIERS EN STAGE (%d):%s\n", ColorGreen, len(stagedFiles), ColorReset)
-  for _, file := range stagedFiles {
-   fmt.Printf("   %s▶%s %s\n", ColorGreen, ColorReset, file)
-  }
+	// Affichage organisé avec couleurs et statistiques
+	if len(stagedFiles) > 0 {
+		fmt.Printf("%s✅ FICHIERS EN STAGE (%d):%s\n", ColorGreen, len(stagedFiles), ColorReset)
+		for _, file := range stagedFiles {
+			fmt.Printf("   %s▶%s %s\n", ColorGreen, ColorReset, file)
+		}
 
-  // Statistiques des changements stagés
-  statsOutput, _ := gm.runGitCommand("diff", "--cached", "--stat")
-  if statsOutput != "" {
-   fmt.Printf("%s   📊 Statistiques:%s\n", ColorCyan, ColorReset)
-   lines := strings.Split(statsOutput, "\n")
-   for _, line := range lines {
-    if line != "" && !strings.Contains(line, "file") {
-     fmt.Printf("   %s\n", line)
-    }
-   }
-  }
-  fmt.Println()
- }
+		// Statistiques des changements stagés
+		statsOutput, _ := gm.runGitCommand("diff", "--cached", "--stat")
+		if statsOutput != "" {
+			fmt.Printf("%s   📊 Statistiques:%s\n", ColorCyan, ColorReset)
+			lines := strings.Split(statsOutput, "\n")
+			for _, line := range lines {
+				if line != "" && !strings.Contains(line, "file") {
+					fmt.Printf("   %s\n", line)
+				}
+			}
+		}
+		fmt.Println()
+	}
 
- if len(modified) > 0 {
-  fmt.Printf("%s⚠️  FICHIERS MODIFIÉS (%d):%s\n", ColorYellow, len(modified), ColorReset)
-  for i, file := range modified {
-   if i < 10 { // Limiter l'affichage
-    fmt.Printf("   %s●%s %s\n", ColorYellow, ColorReset, file)
-   } else if i == 10 {
-    fmt.Printf("   %s... et %d autre(s)%s\n", ColorYellow, len(modified)-10, ColorReset)
-    break
-   }
-  }
-  fmt.Println()
- }
+	if len(modified) > 0 {
+		fmt.Printf("%s⚠️  FICHIERS MODIFIÉS (%d):%s\n", ColorYellow, len(modified), ColorReset)
+		for i, file := range modified {
+			if i < 10 { // Limiter l'affichage
+				fmt.Printf("   %s●%s %s\n", ColorYellow, ColorReset, file)
+			} else if i == 10 {
+				fmt.Printf("   %s... et %d autre(s)%s\n", ColorYellow, len(modified)-10, ColorReset)
+				break
+			}
+		}
+		fmt.Println()
+	}
 
- // Afficher les fichiers ajoutés s'il y en a (utilisation de la variable 'added')
- if len(added) > 0 {
-  fmt.Printf("%s➕ NOUVEAUX FICHIERS (%d):%s\n", ColorBlue, len(added), ColorReset)
-  for _, file := range added {
-   fmt.Printf("   %s+%s %s\n", ColorBlue, ColorReset, file)
-  }
-  fmt.Println()
- }
+	// Afficher les fichiers ajoutés s'il y en a (utilisation de la variable 'added')
+	if len(added) > 0 {
+		fmt.Printf("%s➕ NOUVEAUX FICHIERS (%d):%s\n", ColorBlue, len(added), ColorReset)
+		for _, file := range added {
+			fmt.Printf("   %s+%s %s\n", ColorBlue, ColorReset, file)
+		}
+		fmt.Println()
+	}
 
- if len(untracked) > 0 {
-  fmt.Printf("%s❓ FICHIERS NON SUIVIS (%d):%s\n", ColorRed, len(untracked), ColorReset)
-  for i, file := range untracked {
-   if i < 5 { // Limiter l'affichage pour les non suivis
-    fmt.Printf("   %s?%s %s\n", ColorRed, ColorReset, file)
-   } else if i == 5 {
-    fmt.Printf("   %s... et %d autre(s)%s\n", ColorRed, len(untracked)-5, ColorReset)
-    break
-   }
-  }
-  fmt.Println()
- }
+	if len(untracked) > 0 {
+		fmt.Printf("%s❓ FICHIERS NON SUIVIS (%d):%s\n", ColorRed, len(untracked), ColorReset)
+		for i, file := range untracked {
+			if i < 5 { // Limiter l'affichage pour les non suivis
+				fmt.Printf("   %s?%s %s\n", ColorRed, ColorReset, file)
+			} else if i == 5 {
+				fmt.Printf("   %s... et %d autre(s)%s\n", ColorRed, len(untracked)-5, ColorReset)
+				break
+			}
+		}
+		fmt.Println()
+	}
 
- if len(deleted) > 0 {
-  fmt.Printf("%s🗑️  FICHIERS SUPPRIMÉS (%d):%s\n", ColorRed, len(deleted), ColorReset)
-  for _, file := range deleted {
-   fmt.Printf("   %s✗%s %s\n", ColorRed, ColorReset, file)
-  }
-  fmt.Println()
- }
+	if len(deleted) > 0 {
+		fmt.Printf("%s🗑️  FICHIERS SUPPRIMÉS (%d):%s\n", ColorRed, len(deleted), ColorReset)
+		for _, file := range deleted {
+			fmt.Printf("   %s✗%s %s\n", ColorRed, ColorReset, file)
+		}
+		fmt.Println()
+	}
 
- if len(renamed) > 0 {
-  fmt.Printf("%s🔄 FICHIERS RENOMMÉS (%d):%s\n", ColorCyan, len(renamed), ColorReset)
-  for _, file := range renamed {
-   fmt.Printf("   %s↻%s %s\n", ColorCyan, ColorReset, file)
-  }
-  fmt.Println()
- }
+	if len(renamed) > 0 {
+		fmt.Printf("%s🔄 FICHIERS RENOMMÉS (%d):%s\n", ColorCyan, len(renamed), ColorReset)
+		for _, file := range renamed {
+			fmt.Printf("   %s↻%s %s\n", ColorCyan, ColorReset, file)
+		}
+		fmt.Println()
+	}
 }
 
 // Informations détaillées sur les branches
@@ -568,6 +568,44 @@ func (gm *GitManager) showIntelligentSuggestions() {
 		ColorCyan, ColorReset, ColorCyan, ColorReset, ColorCyan, ColorReset, ColorCyan, ColorReset, ColorCyan, ColorReset)
 }
 
+func (gm *GitManager) createBranchFromCommit() {
+	// Afficher l'historique récent pour aider l'utilisateur
+	fmt.Printf("%s📈 Derniers commits:%s\n", ColorBlue, ColorReset)
+	recentCommits, _ := gm.runGitCommand("log", "--oneline", "--graph", "-10")
+	fmt.Println(recentCommits)
+
+	fmt.Printf("\n%sNom de la nouvelle branche: %s", ColorYellow, ColorReset)
+	branchName := gm.getUserInput()
+
+	if branchName == "" {
+		fmt.Printf("%s❌ Nom de branche invalide!%s\n", ColorRed, ColorReset)
+		gm.pause()
+		return
+	}
+
+	fmt.Printf("%sCommit de base (ex: HEAD~1 pour l'avant-dernier, ou hash spécifique): %s", ColorYellow, ColorReset)
+	baseCommit := gm.getUserInput()
+
+	if baseCommit == "" {
+		baseCommit = "HEAD" // Par défaut, le commit actuel
+	}
+
+	// Créer la branche depuis le commit spécifié
+	output, err := gm.runGitCommand("checkout", "-b", branchName, baseCommit)
+	if err != nil {
+		fmt.Printf("%s❌ Erreur: %s%s\n", ColorRed, output, ColorReset)
+	} else {
+		fmt.Printf("%s✅ Branche '%s' créée depuis le commit %s!%s\n", ColorGreen, branchName, baseCommit, ColorReset)
+
+		// Afficher où on se trouve maintenant
+		currentBranch := gm.getCurrentBranch()
+		lastCommit, _ := gm.runGitCommand("log", "-1", "--pretty=format:%h - %s")
+		fmt.Printf("%s📍 Vous êtes maintenant sur la branche '%s'%s\n", ColorCyan, currentBranch, ColorReset)
+		fmt.Printf("%s📦 Dernier commit: %s%s\n", ColorBlue, lastCommit, ColorReset)
+	}
+	gm.pause()
+}
+
 func (gm *GitManager) handleBranchManagement() {
 	if !gm.isGitRepo() {
 		fmt.Printf("%s❌ Ce répertoire n'est pas un dépôt Git!%s\n", ColorRed, ColorReset)
@@ -585,11 +623,12 @@ func (gm *GitManager) handleBranchManagement() {
 		fmt.Println(branches)
 
 		fmt.Println("\n1. Créer une nouvelle branche")
-		fmt.Println("2. Changer de branche")
-		fmt.Println("3. Supprimer une branche")
-		fmt.Println("4. Renommer une branche")
-		fmt.Println("5. Merger une branche")
-		fmt.Println("6. Voir les branches remote")
+		fmt.Println("2. Créer une branche depuis un commit spécifique") // NOUVELLE OPTION
+		fmt.Println("3. Changer de branche")
+		fmt.Println("4. Supprimer une branche")
+		fmt.Println("5. Renommer une branche")
+		fmt.Println("6. Merger une branche")
+		fmt.Println("7. Voir les branches remote")
 		fmt.Println("0. Retour au menu principal")
 
 		fmt.Printf("\n%sChoisissez une option: %s", ColorYellow, ColorReset)
@@ -599,14 +638,16 @@ func (gm *GitManager) handleBranchManagement() {
 		case "1":
 			gm.createBranch()
 		case "2":
-			gm.switchBranch()
+			gm.createBranchFromCommit() // NOUVELLE FONCTION
 		case "3":
-			gm.deleteBranch()
+			gm.switchBranch()
 		case "4":
-			gm.renameBranch()
+			gm.deleteBranch()
 		case "5":
-			gm.mergeBranch()
+			gm.renameBranch()
 		case "6":
+			gm.mergeBranch()
+		case "7":
 			gm.showRemoteBranches()
 		case "0":
 			return
@@ -877,9 +918,11 @@ func (gm *GitManager) handleStatistics() {
 		fmt.Println("2. Contributeurs et activité")
 		fmt.Println("3. Historique détaillé")
 		fmt.Println("4. Graphique des branches")
-		fmt.Println("5. Statistiques par fichier")
-		fmt.Println("6. Blâme d'un fichier")
-		fmt.Println("7. Recherche dans l'historique")
+		fmt.Println("5. Arbre des branches")
+		fmt.Println("6. VUE ARBRE COMPLÈTE (tous commits & branches)") // NOUVELLE OPTION
+		fmt.Println("7. Statistiques par fichier")
+		fmt.Println("8. Blâme d'un fichier")
+		fmt.Println("9. Recherche dans l'historique")
 		fmt.Println("0. Retour au menu principal")
 
 		fmt.Printf("\n%sChoisissez une option: %s", ColorYellow, ColorReset)
@@ -895,10 +938,14 @@ func (gm *GitManager) handleStatistics() {
 		case "4":
 			gm.showBranchGraph()
 		case "5":
-			gm.showFileStats()
+			gm.showBranchTree()
 		case "6":
-			gm.showBlame()
+			gm.showCompleteTree() // NOUVELLE FONCTION
 		case "7":
+			gm.showFileStats()
+		case "8":
+			gm.showBlame()
+		case "9":
 			gm.searchHistory()
 		case "0":
 			return
@@ -2277,6 +2324,22 @@ func (gm *GitManager) showBranchGraph() {
 	fmt.Printf("%s%s🌳 GRAPHIQUE DES BRANCHES%s\n", ColorBold, ColorBlue, ColorReset)
 	fmt.Println(strings.Repeat("═", 35))
 
+	// Vérifier d'abord s'il y a plusieurs branches
+	localBranches, _ := gm.runGitCommand("branch")
+
+	branchCount := len(strings.Split(strings.TrimSpace(localBranches), "\n"))
+	if localBranches == "" {
+		branchCount = 0
+	}
+
+	fmt.Printf("%s📊 Analyse des branches:%s\n", ColorCyan, ColorReset)
+	fmt.Printf("   %sBranches locales: %s%d%s\n", ColorBlue, ColorYellow, branchCount, ColorReset)
+
+	if branchCount <= 1 {
+		fmt.Printf("%s💡 Vous n'avez qu'une seule branche, le graphique sera linéaire.%s\n", ColorYellow, ColorReset)
+		fmt.Printf("%s   Créez des branches pour voir un vrai graphique de développement !%s\n\n", ColorYellow, ColorReset)
+	}
+
 	fmt.Printf("%sNombre de commits à afficher (défaut: 30): %s", ColorYellow, ColorReset)
 	countStr := gm.getUserInput()
 
@@ -2287,11 +2350,255 @@ func (gm *GitManager) showBranchGraph() {
 		}
 	}
 
-	output, err := gm.runGitCommand("log", "--graph", "--pretty=format:%C(auto)%h%C(reset) - %C(green)%s%C(reset) %C(yellow)(%ar)%C(reset) %C(bold blue)<%an>%C(reset)", "--all", fmt.Sprintf("-%d", count))
+	fmt.Printf("\n%sChoisissez le style d'affichage:%s\n", ColorCyan, ColorReset)
+	fmt.Println("1. Graphique simple (par défaut)")
+	fmt.Println("2. Graphique détaillé avec couleurs")
+	fmt.Println("3. Vue compacte (oneline)")
+	fmt.Println("4. Vue avec statistiques des fichiers")
+	fmt.Println("5. Vue par auteur")
+
+	fmt.Printf("\n%sStyle (défaut 2): %s", ColorYellow, ColorReset)
+	style := gm.getUserInput()
+
+	var output string
+	var err error
+
+	switch style {
+	case "1":
+		output, err = gm.runGitCommand("log", "--graph", "--pretty=format:%h - %s (%ar) <%an>", "--all", fmt.Sprintf("-%d", count))
+	case "3":
+		output, err = gm.runGitCommand("log", "--graph", "--oneline", "--all", fmt.Sprintf("-%d", count))
+	case "4":
+		output, err = gm.runGitCommand("log", "--graph", "--stat", "--pretty=format:%C(yellow)%h%C(reset) - %s %C(green)(%ar)%C(reset) %C(bold blue)<%an>%C(reset)", fmt.Sprintf("-%d", count))
+	case "5":
+		// Vue par auteur avec couleurs
+		output, err = gm.runGitCommand("log", "--graph", "--pretty=format:%C(red)%h%C(reset) %C(green)%s%C(reset) %C(yellow)(%ar)%C(reset) %C(bold blue)by %an%C(reset)", "--all", fmt.Sprintf("-%d", count))
+	default: // Style 2 - détaillé avec couleurs (par défaut)
+		output, err = gm.runGitCommand("log", "--graph", "--pretty=format:%C(auto)%h%C(reset) %C(bold)-%C(reset) %C(white)%s%C(reset) %C(green)(%ar)%C(reset) %C(bold blue)<%an>%C(reset)", "--all", fmt.Sprintf("-%d", count))
+	}
+
 	if err != nil {
 		fmt.Printf("%s❌ Erreur: %s%s\n", ColorRed, output, ColorReset)
 	} else {
+		fmt.Printf("\n%s🌿 Historique des branches:%s\n", ColorGreen, ColorReset)
+		fmt.Println(strings.Repeat("─", 50))
 		fmt.Println(output)
+
+		// Ajouter des statistiques utiles
+		fmt.Printf("\n%s📈 Statistiques rapides:%s\n", ColorBlue, ColorReset)
+
+		// Dernière activité
+		lastCommit, _ := gm.runGitCommand("log", "-1", "--pretty=format:%ar")
+		fmt.Printf("   %sDernière activité: %s%s%s\n", ColorCyan, ColorWhite, lastCommit, ColorReset)
+
+		// Nombre total de commits
+		totalCommits, _ := gm.runGitCommand("rev-list", "--count", "HEAD")
+		fmt.Printf("   %sTotal commits: %s%s%s\n", ColorCyan, ColorWhite, totalCommits, ColorReset)
+
+		// Branches remote si elles existent
+		remoteBranches, _ := gm.runGitCommand("branch", "-r")
+		if remoteBranches != "" {
+			remoteCount := len(strings.Split(strings.TrimSpace(remoteBranches), "\n"))
+			fmt.Printf("   %sBranches remote: %s%d%s\n", ColorCyan, ColorWhite, remoteCount, ColorReset)
+		}
+	}
+
+	gm.pause()
+}
+
+// Nouvelle fonction pour afficher un arbre complet de tous les commits et branches
+func (gm *GitManager) showCompleteTree() {
+	fmt.Printf("%s%s🌳 VUE ARBRE COMPLÈTE - TOUS COMMITS & BRANCHES%s\n", ColorBold, ColorGreen, ColorReset)
+	fmt.Println(strings.Repeat("═", 55))
+
+	currentBranch := gm.getCurrentBranch()
+	fmt.Printf("%s📍 Branche actuelle: %s%s%s\n\n", ColorBlue, ColorCyan, currentBranch, ColorReset)
+
+	fmt.Printf("%sNombre de commits à afficher (défaut: 50): %s", ColorYellow, ColorReset)
+	countStr := gm.getUserInput()
+
+	count := 50
+	if countStr != "" {
+		if c, err := strconv.Atoi(countStr); err == nil {
+			count = c
+		}
+	}
+
+	fmt.Printf("\n%sStyle d'arbre:%s\n", ColorCyan, ColorReset)
+	fmt.Println("1. Arbre complet avec toutes les branches (recommandé)")
+	fmt.Println("2. Arbre avec couleurs et décoration avancée")
+	fmt.Println("3. Arbre compact avec hash courts")
+	fmt.Println("4. Arbre avec informations de merge")
+	fmt.Println("5. Arbre ASCII artistique")
+
+	fmt.Printf("\n%sStyle (défaut 1): %s", ColorYellow, ColorReset)
+	style := gm.getUserInput()
+
+	var output string
+	var err error
+
+	switch style {
+	case "2":
+		// Arbre avec couleurs et décoration avancée
+		output, err = gm.runGitCommand("log",
+			"--graph",
+			"--all",
+			"--decorate",
+			"--pretty=format:%C(auto)%h%C(reset) %C(bold yellow)│%C(reset) %C(white)%s%C(reset) %C(dim)(%ar)%C(reset) %C(bold blue)<%an>%C(reset)%C(auto)%d%C(reset)",
+			fmt.Sprintf("-%d", count))
+	case "3":
+		// Arbre compact
+		output, err = gm.runGitCommand("log",
+			"--graph",
+			"--all",
+			"--oneline",
+			"--decorate",
+			fmt.Sprintf("-%d", count))
+	case "4":
+		// Arbre avec informations de merge
+		output, err = gm.runGitCommand("log",
+			"--graph",
+			"--all",
+			"--decorate",
+			"--merges",
+			"--pretty=format:%C(yellow)%h%C(reset) %C(bold)MERGE:%C(reset) %C(white)%s%C(reset) %C(green)(%ar)%C(reset) %C(blue)<%an>%C(reset)%C(auto)%d%C(reset)",
+			fmt.Sprintf("-%d", count))
+	case "5":
+		// Arbre ASCII artistique
+		output, err = gm.runGitCommand("log",
+			"--graph",
+			"--all",
+			"--decorate",
+			"--pretty=format:%C(red)●%C(reset) %C(yellow)%h%C(reset) %C(bold)━%C(reset) %C(white)%s%C(reset)%C(auto)%d%C(reset)%n%C(dim)  ╰─ %ar by %an%C(reset)",
+			fmt.Sprintf("-%d", count))
+	default: // Style 1 - Arbre complet (par défaut)
+		output, err = gm.runGitCommand("log",
+			"--graph",
+			"--all",
+			"--decorate",
+			"--date=relative",
+			"--pretty=format:%C(auto)%h%C(reset) - %C(white)%s%C(reset) %C(green)(%ar)%C(reset) %C(bold blue)<%an>%C(reset)%C(auto)%d%C(reset)",
+			fmt.Sprintf("-%d", count))
+	}
+
+	if err != nil {
+		fmt.Printf("%s❌ Erreur: %s%s\n", ColorRed, output, ColorReset)
+		gm.pause()
+		return
+	}
+
+	// Afficher l'arbre
+	fmt.Printf("\n%s🌿 ARBRE COMPLET:%s\n", ColorGreen, ColorReset)
+	fmt.Println(strings.Repeat("─", 80))
+	fmt.Println(output)
+
+	// Ajouter un résumé des branches
+	fmt.Printf("\n%s📊 RÉSUMÉ DES BRANCHES:%s\n", ColorBlue, ColorReset)
+	gm.showBranchSummary()
+
+	gm.pause()
+}
+
+// Fonction helper pour afficher un résumé des branches
+func (gm *GitManager) showBranchSummary() {
+	// Branches locales avec leurs derniers commits
+	localBranches, _ := gm.runGitCommand("for-each-ref",
+		"--format=%(refname:short)|%(objectname:short)|%(committerdate:relative)|%(subject)",
+		"refs/heads/")
+
+	if localBranches != "" {
+		fmt.Printf("%s🏠 Branches locales:%s\n", ColorCyan, ColorReset)
+		lines := strings.Split(localBranches, "\n")
+		for _, line := range lines {
+			if line != "" {
+				parts := strings.Split(line, "|")
+				if len(parts) >= 4 {
+					branchName := parts[0]
+					hash := parts[1]
+					date := parts[2]
+					subject := parts[3]
+
+					// Limiter la longueur du message
+					if len(subject) > 50 {
+						subject = subject[:47] + "..."
+					}
+
+					currentBranch := gm.getCurrentBranch()
+					if branchName == currentBranch {
+						fmt.Printf("   %s* %-15s%s %s%s%s (%s) - %s\n",
+							ColorGreen, branchName, ColorReset, ColorYellow, hash, ColorReset, date, subject)
+					} else {
+						fmt.Printf("     %-15s %s%s%s (%s) - %s\n",
+							branchName, ColorYellow, hash, ColorReset, date, subject)
+					}
+				}
+			}
+		}
+	}
+
+	// Branches remote si elles existent
+	remoteBranches, _ := gm.runGitCommand("for-each-ref",
+		"--format=%(refname:short)|%(objectname:short)|%(committerdate:relative)",
+		"refs/remotes/")
+
+	if remoteBranches != "" {
+		fmt.Printf("\n%s🌐 Branches remote:%s\n", ColorCyan, ColorReset)
+		lines := strings.Split(remoteBranches, "\n")
+		for _, line := range lines {
+			if line != "" {
+				parts := strings.Split(line, "|")
+				if len(parts) >= 3 {
+					branchName := parts[0]
+					hash := parts[1]
+					date := parts[2]
+					fmt.Printf("     %-20s %s%s%s (%s)\n",
+						branchName, ColorYellow, hash, ColorReset, date)
+				}
+			}
+		}
+	}
+
+	// Statistiques rapides
+	totalCommits, _ := gm.runGitCommand("rev-list", "--count", "--all")
+	fmt.Printf("\n%s📈 Total commits (toutes branches): %s%s%s\n", ColorGreen, ColorWhite, totalCommits, ColorReset)
+}
+
+// Fonction bonus pour visualiser l'arbre des branches de manière plus graphique
+func (gm *GitManager) showBranchTree() {
+	fmt.Printf("%s%s🌲 ARBRE DES BRANCHES%s\n", ColorBold, ColorGreen, ColorReset)
+	fmt.Println(strings.Repeat("═", 25))
+
+	// Lister toutes les branches avec leurs derniers commits
+	branches, _ := gm.runGitCommand("branch", "-v")
+	fmt.Printf("%s📋 Branches locales:%s\n", ColorBlue, ColorReset)
+	fmt.Println(branches)
+
+	// Afficher les relations entre branches
+	fmt.Printf("\n%s🔗 Relations entre branches:%s\n", ColorYellow, ColorReset)
+
+	// Pour chaque branche, montrer depuis quel commit elle diverge
+	localBranches, _ := gm.runGitCommand("branch", "--format=%(refname:short)")
+	if localBranches != "" {
+		branchLines := strings.Split(strings.TrimSpace(localBranches), "\n")
+		currentBranch := gm.getCurrentBranch()
+
+		for _, branch := range branchLines {
+			if branch != "" && branch != currentBranch {
+				// Trouver le commit de divergence
+				mergeBase, _ := gm.runGitCommand("merge-base", currentBranch, branch)
+				if mergeBase != "" {
+					shortHash := mergeBase[:7]
+					commitMsg, _ := gm.runGitCommand("log", "-1", "--pretty=format:%s", mergeBase)
+					fmt.Printf("   %s%s%s ──┬── %s%s%s\n", ColorCyan, currentBranch, ColorReset, ColorYellow, branch, ColorReset)
+					fmt.Printf("      │   └─ diverge depuis: %s%s - %s%s\n", ColorGreen, shortHash, commitMsg, ColorReset)
+				}
+			}
+		}
+
+		if len(branchLines) == 1 {
+			fmt.Printf("   %s%s%s (branche unique)\n", ColorGreen, currentBranch, ColorReset)
+			fmt.Printf("   └─ %s💡 Créez des branches pour voir les relations !%s\n", ColorYellow, ColorReset)
+		}
 	}
 
 	gm.pause()
